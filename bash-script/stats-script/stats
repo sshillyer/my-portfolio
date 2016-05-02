@@ -1,0 +1,195 @@
+#!/bin/bash
+
+# Program 1: Stats
+# Author: Shawn S Hillyer
+# Date: 3/26/2016
+# Usage:
+# stats { -rows | -cols } [input_file]
+
+# GLOBALS
+interactive_mode=false
+cols_mode=false
+pid=$$ 
+
+# CONSTANTS
+USAGE_STRING='{-rows|-cols} [file]'
+SCRIPT_NAME=$(basename $0)  # Cite TLCL Page 440
+
+# Return 0 if number of arguments is 0 or 1, else print usage message and exit
+validate_num_args () {
+	if [[ "$1" == 1 ]]; then
+		interactive_mode=true
+	elif [[ "$1" == 2 ]]; then
+		return 0  # success
+	else
+		print_usage
+	fi
+	return 0
+}
+
+# Return 0 (true) if argument 1 is valid format -r* or -c* regex
+# If it does not match, exits with usage message
+validate_arg1 () {
+	if [[ "$1" =~ ^-r.*$ ]]; then
+		cols_mode=false
+		return 0  # true
+	elif [[ "$1" =~ ^-c.*$ ]]; then
+		cols_mode=true
+		return 0
+	else
+		echo "Invalid syntax" >&2
+		print_usage
+	fi
+}
+
+# Attempts to read from file, exits with error message if problem reading or does not exist
+read_from_file () {
+	if [[ ! -e "$1" ]]; then
+		echo "$SCRIPT_NAME: cannot read $1 - file does not exist" >&2
+		exit 1
+	elif [[ ! -r "$1" ]]; then
+		echo "$SCRIPT_NAME: cannot read $1 - file not readable" >&2
+		exit 1
+	elif [[ -f "$1" ]]; then
+		# File exists, return out of function
+		return
+	else
+		# A backup catch-all if some other error occured
+		echo "$SCRIPT_NAME: cannot read $1 - unknown reason" >&2
+		exit 1
+	fi
+	return
+}
+
+# Redirects stdin to a temporary file which we clean up later
+read_from_stdin () {
+	temp_file=./temp$pid   # $pid was defined at head of file in constants
+	file_name=$temp_file
+	cat > "$temp_file"
+	return
+}
+
+
+convert_to_cols () {
+	input_file=$1
+	temp_col_file=./col_temp$pid
+	touch "$temp_col_file"
+
+	cols="$(head -n 1 $input_file | wc -w)"	# the number of columns ; controls the for loop
+
+	# for every column in the file, go through and perform some hackering using sed ("stream editor") by piping the fields from the input file into
+	# transform (tr), which is converting the newliens into tabs. This output is piped into into sed which is doing a global replacement that results in
+	# our properly formatted file...
+	for (( i=1; i<=$cols; i++ )) do
+		cut -f $i $input_file | tr $'\n' $'\t' | sed -e "s/\t$/\n/g" >> "$temp_col_file"
+	done
+
+	file_name=$temp_col_file
+}
+
+
+# Displays usage to user
+print_usage () {
+	echo "Usage: $SCRIPT_NAME $USAGE_STRING" >&2 
+	exit 1
+}
+
+# ############################################################################
+# main program logic
+# ############################################################################
+
+# Put the arguments into more meaningful variable names
+num_args=$#
+process_mode=$1
+file_name=$2
+
+# Validate the command line arguments and attempt to open file
+validate_num_args $num_args
+validate_arg1 $process_mode
+
+# Create a file if in interactive mode (or using a pipe); else read from file
+if [[ $interactive_mode == true ]] ; then
+	read_from_stdin
+else
+	read_from_file $file_name
+fi
+
+# Convert a row file to a column file if cols_mode is set
+if [[ $cols_mode == true ]]; then
+	convert_to_cols $file_name
+fi
+
+# Arrays to store the averages and medians in
+declare -a averages
+declare -a medians
+current_row=0
+
+# read each row from $file_name and process
+# Citation: TLCL Page 414 / class note examples
+while read row_string; do  # row_string is the string form
+	i=0		# index to store the actual values in later
+	row_sum=0	# Sum of the current row
+
+	# Parse the string using tr to remove the tabs and repalce with spaces
+	row_no_tabs="$(echo $row_string | tr '\t' ' ')"
+	
+	declare -a row_values # array to store the actual numeric values
+	
+	# Iterate through the clean string and place teh values in array
+	for j in $row_no_tabs; do
+		row_values[i]=$j
+		row_sum=$(($row_sum + $j))
+		let i++
+	done
+
+	# Sort the array for this row
+	row_sorted=($(for k in "${row_values[@]}"; do echo $k; done | sort -n))
+	
+	# Store the number of values in the row in num_values to calc average & median
+	num_values=${#row_sorted[@]}  
+		
+	# Calculate the average for this row
+	row_average=$(( $row_sum / $num_values ))
+	row_remainder=$(( $row_sum % $num_values ))
+
+	# If we have a decimal value greater than or equal to .5, round up to next integer	
+	if [[ $(( $row_remainder * 2 )) -ge $num_values ]] ; then
+		let row_average++
+	fi
+	averages[current_row]=$row_average	# Store result in array
+	
+	# Median is middle array value. $num_values / 2 gets us correct index if odd or even.
+	middle=$(( $num_values / 2 ))
+	medians[current_row]=${row_sorted[middle]}  # Store result in array
+
+	let current_row++ # Index into the averages[] and medians[] arrays
+done < $file_name
+
+
+# Format output differently if calculating data on rows or columns
+# If calculating on columns...
+if [[ $cols_mode == true ]]; then
+	# Print the averages first
+	printf "Averages:\n"
+	for (( i=0; i<${#averages[@]}; i=i+1)); do
+		printf "${averages[i]}\t"
+	done
+	# Print the medians next
+	printf "\nMedians:\n"
+	for (( i=0; i<${#medians[@]}; i=i+1)); do
+		printf "${medians[i]}\t"
+	done
+	printf "\n"
+# Else if calculating on rows...
+else
+	# Print headers then iterate through both arrays at same time and print 
+	printf "Average\tMedian\n"
+	for (( i=0; i<${#averages[@]}; i=i+1)); do
+		printf "${averages[i]}\t${medians[i]}\n"
+	done
+fi
+
+trap "rm -f *temp$$; exit 1" INT HUP TERM
+
+# cleanup our temp file(s)
+rm -f *temp$$

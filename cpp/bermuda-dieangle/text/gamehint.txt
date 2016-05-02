@@ -1,0 +1,31 @@
+= HOW TO WIN =======================================================
+In order to win, you must complete one of two sets of tasks.
+--------------------------------------------------------------------
+Option 1: Go to the Coral Reef and search the bodies until you find
+          a Distress Beacon. Go to any Open Water and use the item.
+          Then, wait 5 turns and you will be rescued!
+--------------------------------------------------------------------
+Option 2: Search for treasure in the various wrecked ships until you
+          find an Ancient Artifact (You may find more than one).
+          Travel to the Abyssal Trench and use the special option
+          to swim to the bottom of the sea. When you meet the
+          MerKing, he asks you to give him something or he will kill
+          you. Choose the Ancient Artifact and, as a thank you he
+          sends you (safely) topside to be rescued.
+====================================================================
+
+Map: C=Cave, O = Open Water, R = Reef, S = Ship, T = Trench
+
+t1-t2-t3-t4-t5-t6-t7   <-- Go here to find MerKing
+|  |     |  |  |
+r4-c4-c5-s3-o8-s4      <-- reefs and ships
+|        |  |
+s2-o6-o7-r2 r3         <-- reefs and ships
+|  |  |  |
+o4-o5-s1-r1            <-- reefs and ships
+|     |
+o2-c1-c2
+|  |
+o1-o3      ** o1 is the starting point
+|
+c3

@@ -1,0 +1,29 @@
+= HOW TO PLAY ======================================================
+- Movement ---------------------------------------------------------
+Each area will be a mystery to you as you explore the ocean.
+In order to find a way out, you must search for an exit in one
+of four directions. Once you've found an exit, you can move
+in that direction.
+
+- Oxygen -----------------------------------------------------------
+You have limited oxygen. If you your oxygen reaches zero, you
+suffocate and die! Find extra oxygen tanks by exploring the deep
+sea!
+
+- Inventory --------------------------------------------------------
+Your Diving Belt has a plethora of hooks that allow you to drag a
+huge selection of items with you as you travel the ocean floor. You
+are a professional deep sea treasure hunter, you know!
+
+Access your inventory using the menu at almost any point. From
+there, you can see a list of your objects. You can read a hint about
+its use, use the item, or drop it to make room for something else.
+
+Make sure you keep track of your inventory before you explore an
+area! If you run out of space and find something nice, you may be
+forced to leave it behind - the ocean is a dangerous place!
+
+- Objective --------------------------------------------------------
+You are trying to survive and make it back home. How you do so is
+up to you, and fate! If you collect treasure while you're out there,
+you get to keep the goods and brag to your friends.

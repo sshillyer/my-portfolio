@@ -1,0 +1,7 @@
+= INTRODUCTION =====================================================
+While diving for treasure in the Bermuda Triangle, your ship is
+capsized while you are left alone to die!
+You black out during a strong current and awaken later, still
+underwater. Your oxygen tank is fine, but you've lost all of your
+other gear.
+====================================================================

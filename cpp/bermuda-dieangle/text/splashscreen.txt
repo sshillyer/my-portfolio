@@ -1,0 +1,7 @@
+                        BERMUDA DIE-ANGLE
+                               /\
+                              /  \
+                             /    \
+                            /   X  \
+                           /________\
+                       "X Marks Your Death!"

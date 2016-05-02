@@ -1,0 +1,6 @@
+= GAME OVER ========================================================
+You ran out of oxygen! The world fades into darkness...
+
+Try again!
+
+= GAME OVER ========================================================
