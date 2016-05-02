@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- 
+Author: Shawn S Hillyer
+Date: 02-06-2016
+Course: CS290-400
+Assignment: Week6
+
+Note: Using the Bootstrap basic template for the HTML framework.
+Source: http://getbootstrap.com/getting-started/#template
+All javascript I wrote is in app.js for this assignment
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Weather Query</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+    <h1>Weather Query Tool</h1>
+
+    <p>Enter a ZIP code or a City and state and press submit for some information about the weather there.</p>
+        <p><button type="reset" class="btn btn-danger" id="reset-page-btn">Reset the Page</button></p>
+        
+    <h2>Entry Forms</h2>
+    
+    <!-- ZIP CODE BASED FORM -->
+    <div class="row"> <!-- START forms row -->
+        <div class="col-md-6">
+        <form class="form-inline" id="zip-form"> <!-- BEGIN ZIP form -->
+            <fieldset>
+            <legend>Weather by ZIP Code</legend>
+                <div class="form-group">
+                    <label for="zipCode">ZIP Code:</label>
+                    <input type="text" class="form-control" name="zipCode" id="zip-code" placeholder="Five-digit ZIP Code">
+                </div>
+                <input type="submit" class="btn btn-primary" id="zip-submit">
+            </fieldset>
+        </form><!-- END ZIP form -->
+        </div><!-- END left col -->
+
+        
+        <!-- CITY/STATE BASED FORM -->
+        <div class="col-md-6">
+        <form class="form-inline" id="city-state-form"> <!-- BEGIN city form -->
+            <fieldset>
+            <legend>Weather by U.S. City and State</legend>
+                <div class="form-group">
+                    <label for="cityName">City:</label>
+                    <input type="text" class="form-control" name="cityName" id="city-name" placeholder="City Name">
+                </div>
+                <div class="form-group">
+                    <label for="stateAbbrev">State</label>
+                    <input type="text" class="form-control" name="stateAbbrev" id="state-code" placeholder="Two-letter state abbreviation">
+                </div>
+                <input type="submit" class="btn btn-primary" id="city-state-submit">
+            </fieldset>
+        </form><!-- END city form -->
+        </div><!-- END right col -->
+    </div><!-- END form row -->
+    
+        
+    <!-- Panel to show the weather information on success -->
+    <div class="row" id="results-panel" hidden> <!-- START output row -->
+        <div class="col-md-12">
+        <h2>Weather Information</h2>
+            <p>The most currently reported weather from openweathermap.org for <span id="city"></span> is: <span id="gen-description"></span></p>
+            <ul>
+                <li>Temperature: <span id="current-temp"></span>&#x2109;</li>
+                <li>Humidity: <span id="humidity"></span></li>
+                <li>Wind Speed: <span id="wind-speed"></span></li>
+            </ul>
+        </div>
+    </div> <!-- END output row -->
+        
+        
+    <!-- Panel to show error message on failure -->        
+    <div class="row" id="error-panel" hidden>
+        <div class="col-md-12">
+            <p class="bg-danger">There was an error: <span id="error-message"></span></p>
+        </div> <!-- END error panel -->   
+    </div> <!-- END error row -->           
+    </div> <!-- END main container -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/weather-app.js"></script>
+  </body>
+</html>

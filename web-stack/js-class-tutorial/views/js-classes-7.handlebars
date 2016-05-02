@@ -1,0 +1,66 @@
+<h2 class="page-header">Privacy, Please!</h2>
+<p>A quick recap: So far we've seen how to make objects from a constructor using properties, configure the attributes on those properties, assign methods to their prototypes, and inherit from other objects to create Prototype Chaining to inherit behavior and steal data members from superclass constructors - aka, Prototypal Inheritance.</p>
+
+<p>Let's now turn our attention to something I promised at the outset: Private data variables and methods vs. Public Methods and Properties. If you've studied JavaScript closures and Immediately Invoked Function Expressions, this should feel welcome and intuitive (peraps even self-evident!) to you. If not, I suggest some reading to get up to speed with the concepts.</p>
+
+<p>Let's lay down a monster-sized example. Let's finally 'privatize' our creature class from before. The key concept with this pattern is that we first define some variables. We're going to modify some of our design decisions a bit here, too: If we want private data accessible through a public method, we have to store the related functions on the object itself, rather than on the prototype. </p>
+
+<h4><a href="examples/example14.js">Example 14 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums pre-scrollable">
+function Creature(name, str) {
+  var strength  = str || 100;    // Private
+  this.name = name || "Unnamed"; // Public
+  
+  this.getStrength = function() {
+    console.log("Getting strength...");
+    return strength;
+  };
+  
+  this.levelUp = function() {
+    console.log("Leveling up...");
+    strength += 10;
+  };
+ 
+  this.printInfo = function() {
+    console.log("Name: " + this.name +", Strength: " + strength);
+  }
+}
+ 
+// Our "superclass"
+Creature.prototype = {
+  constructor: Creature,  
+ 
+  // This is okay, name is not private.
+  battleCry: function() {
+    console.log(this.name + " will crush you!");
+  }
+};
+ 
+// Subclass of Creature
+function Furry(name, strength) {
+  // call superclass constructor to 'steal' the public methods and data members
+  Creature.call(this, name, strength); 
+}
+ 
+// Here's the prototypal inheritance
+Furry.prototype = new Creature();   
+Furry.prototype.constructor = Furry; 
+ 
+Furry.prototype.shed = function() {
+  console.log(this.name + " sheds all over the floor. Ew!");
+}
+ 
+var ogre = new Creature("Shrek");
+ogre.name = "Bob"; // Doesn't work!
+console.log(ogre.getStrength()); // 100
+ogre.levelUp();
+ogre.printInfo(); // "Name: Shrek, Strength: 110"
+</pre>
+
+<p>There's a lot going on here, so let's review the code and make some observations. The biggest thing to note is that we declare stength as a variable, instead of contextually applying it as a property that's attached to the local <code>this</code> parameter inside of Creature. What does that mean? Well, normally strength would fall out of scope when the function ends, but because of our friend Closure, this is not the case. The functions nested inside of the constructor function know about strength and are able to access it still.</p> 
+
+<p>Aha! So we have a private member. I suggest downloading this code and running it on your machine and testing out what happens if you try to access ogre.strength directly. Undefined! If you've played with closures a bit and debugged them, this should come as no surprise to you.</p>
+
+<p>We could pretty easily make name private and provide a get function, a set function, etc. And so it is for any of the data members here - by declaring a local variable, we close over them with other functions and create effectively private data members. We've defined public methods to allow our user to interact, and demonstrated a simple case of inheritance.</p>
+
+<p>I hope that this swift tour of object-oriented JavaScript has been helpful to you. On the next page I have a few suggestions on what to read and do next.</p>

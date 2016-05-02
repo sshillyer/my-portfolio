@@ -1,0 +1,82 @@
+<h2 class="page-header">Motivation for Implementing Class-like Behavior in JS</h2>
+
+<p><abbr>OO</abbr> (Object-Oriented) Programming appears to be around for the long haul. Because it is such a popular paradigm, users of JavaScript often want to know how to program using classes, inheritance, and their related constructs. Unfortunately, JavaScript did not make this easy. I think being able to emulate class-like behavior in JavaScript is important. In JavaScript, objects are everywhere. But JavaScript does not have classes in the traditional sense - some would say it does not support classes at all.</p>
+    
+<p>There are some misconceptions about JavaScript that are often overlooked by newcomers to JavaScript and professionals alike. One misconcenption I have heard s that "everything in JavaScript is a class". There's also some confusion about how closures work, hoisting, and a variety of other topics.</p>
+
+<h3>Getting Started</h3>
+<p>In other high level languages, you can probably do something like this:</p>
+
+<pre class="prettyprint">class Shape {
+    var sides;
+    var color;
+}</pre>
+
+<p>Then you would instantiate an object of the class like so:</p>
+<pre class="prettyprint linenums">var redSquare = new Shape();
+redSquare.sides = 4;
+redSquare.color = red;</pre>
+
+<p>Pre-ECMAScript 6, the <code>class</code> keyword was reserved but unused. We are going to discuss pre-EC6 techniques because EC6 has added a lot of syntatic sugar that obfuscates what's really happening with the language. So for now, let's start with a simple object and work our way towards class-like objects.</p>
+
+<p>I'm assuming you already know JavaScript's object literal notation, but I'll first show how we'd make a redSquare as just a simple object. Also, we're going to give it a single method that tells us, via the console, what it is:</p>
+
+<h4><a href="examples/example1.js">Example 1 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums">var redSquare = {
+  sides: 4,
+  color: "red",
+  identity: function() {
+    console.log(this.sides + " sided " + this.color + " shape.");
+  }
+};
+
+redSquare.identity(); // 4 sided red shape.</pre>
+
+<p>We'd like to create a class though. There are a lot of problems with this single object we've created. Obviously, it's a single object and does not help us a lot if we want to have a factory from which we can churn out lots of squares. We'd like, ultimately, a function that returns an object using JavaScript, because we actually want to be able to pass in some arguments to a constructor of some sort. As it stands, we have to go and set the members of each property on the object individually.</p>
+
+<p>In C++/Java/C# terms, we would call such a thing a constructor. By convention, it would have a capital letter to indicate to the user that this is a constructor method. As a reminder, data properties on a JavaScript object are non-function properties. Accessor properties are properties defined as a function that lets us <em>access</em> the data members of the object. This is a real distinction that does indeed matter. Accessor properties, for example, do not have a "value" peroperty.</p>
+    
+<p>Let's go ahead and introduce some syntax you may not know: get and set. We can create a get function and a set function in a singleton object by using those keywords. We're also going to try and "privatize" our data members so that we can access them through a public interface. Note the leading _underscore is just a convention and, as you'll see, does not truly protect the data.</p>
+
+<h4><a href="examples/example2.js">Example 2 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums pre-scrollable">"use strict";
+
+var redSquare = {
+  // _sides isn't technically private, we're just defining public get/set methods
+  _sides: 4,
+  get sides() {
+    console.log("Reading sides");
+    return this._sides;
+  },
+  set sides(numSides) {
+    console.log("Setting sides to %s", numSides);
+      this._sides = numSides;
+  },
+  _color: "red",
+  get color() {
+    console.log("Reading color");
+    return this._color;
+  },
+  set color(newColor) {
+    console.log("Setting color to %s", newColor);
+    this._color = newColor;
+  },
+  
+  identity: function() {
+    console.log(this.sides + " sided " + this.color + " shape.");
+  }
+};
+
+redSquare.identity();  // Reading sides --> Reading color --> 4 sided red shape
+// Make our red square not so red or square. 
+redSquare.sides = 5; // Setting sides to 5
+redSquare.color = "blue"; // Setting color to blue
+// Doesn't accomplish much except logging in this case!
+redSquare.identity(); // Reading sides --> Reading color --> 5 sided blue shape.</pre>
+
+<p>As you can see, when we try to write to .sides, the set sides() function is called. When we try to read from it - even from within the object, as in identity() - then the get sides() function is called. This is actually really powerful but not particularly useful as presented here. Also, you can just call redSquare._sides = 5 and totally ignore the set function. _sides is not <em>really</em> private at all.</p>
+
+<h3>The Pain Points</h3>
+<p>So what are the problems so far? First, we don't have true encapsulation yet. For that, we will need closures. We also do not have any protection that a user won't just go and use the <code>delete</code> operator to remove data members or functions entirely. Also, we only have a single function, and we do not have a constructor that will quickly set the sides.</p>
+
+<p>Continue reading to find out how attributes can give us some control and protection over our objects.</p>

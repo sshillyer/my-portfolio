@@ -1,0 +1,22 @@
+/* styles.css */
+
+/* TODO: CSS reset and build main styles */
+
+
+* {
+    color: darkslategray;
+    font-family: "consolas", sans-serif;
+/*    background-color:lightgray;*/
+}
+
+td, tr {
+    height: 18px;
+    width: 18px;
+    border-width: 2px;
+    border-style: inset;
+    border-color: dimgrey;
+}
+
+.bomb-cell {
+    background: red;
+}

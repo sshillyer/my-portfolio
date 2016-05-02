@@ -1,0 +1,39 @@
+        <div class="row">
+            <div class="jumbotron">
+            <h1 class="">How to Implement Class-like Behavior in JavaScript</h1>
+            </div>
+        </div>
+<!--<h2 class="page-header">How to Implement Class(like) Behavior In JavaScript</h2>-->
+<p>This guide aims to demonstrates how to leverage closures and other JavaScript mechanics to create an approximation to classical object-oriented design, classes, and inheritance. We first will examine the motivation behind doing so in a language that does not actually support our traditional concept of classes. Then we will step through increasingly more complex class-like structures as they are implemented in JavaScript until we have developed a handful of techniques we can use if needed.</p>
+
+<h3>Official Documentation</h3>
+<p>A lot of sources were used to develop this tutorial. Chief among them was the <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">official Mozilla documentation pages for ECMAScript</a>.</p>
+
+<h3>Prerequisites</h3>
+
+<p>In order to follow along with this guide, you will need an understanding of:</p>
+    <ul>
+    <li>JavaScript syntax, 
+    <li>closures, </li>
+    <li>and variable scope. </li>
+    <li>JavaScript Ojbects and Prototypes. You can check out this <a href="https://github.com/getify/You-Dont-Know-JS/blob/master/this%20&%20object%20prototypes/ch5.md">free resource from <cite>You Don't Know JS</cite></a> to get an overview if the concept is alien to you.</li>
+    </ul>
+<p>The intent of this guide is not to review the core concepts above, but rather to apply them to some toy problems to demonstrate how you can use the language to do some basic things with class-like objects in JavaScript. As you read this guide, you'll see there are occsionally links to the Mozilla documentation and other outside resources. I encourage you to look at the documentation whenever an unfamiliar term comes up.</p>
+
+<p>In addition, you will probably want node.js installed or some other modern JavaScript environment to run the code examples in. Some of the examples may require "use strict"; if you're getting errors unexpectedly, try adding that line to the code. </p>
+
+
+<h3>Compatability</h3>
+
+<p>This guide was written with Windows 7 and a virtual machine with the latest distribution of Ubunutu installed. To run the samples in windows, launch the node.js terminal that comes installed with the node.js distribution package. In Linux, you should be able to simply open a terminal of your choice. In either case, navigate to your working directory and follow along by typing the examples, your own problems, etc. I tested every script using node.js in Windows on 2/23/2016 using node.js version 4.2.1.</p>
+
+<p>You can clone the repository for this site and run it locally using node by first cloning the repo, then running <code>node install</code> from inside the directory to install the dependencies. Next, fire up the server using <code>node index.js</code>. Finally, navigate to you http://localhost:3001 (Or whatever port you set in the index.js file) and read the guide. When you clone this repository, you'll find all of the code examples in ../public/examples/</p>
+
+
+<h3>Contributions and Inspirations</h3>
+
+<p>Finally, before we begin, please let me know if you would like to make a contribution to this guide. Whether you've identified a syntax error that was transcribed into the source code or simply want to improve the grammar or stucture of this guide, I welcome such criticism. The best way to make such suggestions is to issue a pull request for the project on Github.</p>
+
+<p>This guide would not be possible without the <cite>The Principles of Object-Oriented JavaScript</cite> by Nicholas C. Zakas. If you are at all interested in learning more about this topic, I highly recommend the textbook. At around 70 pages in length, it is dense with material on a focused subset of the language.</p>
+
+<p>I recommend following the guide in the order its presented - so let's talk about objects.</p>

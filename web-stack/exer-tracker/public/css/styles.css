@@ -1,0 +1,21 @@
+/**************************************************************************************
+ * Author: Shawn S Hillyer
+ * Course: CS 290-400 Web Development
+ * Date Completed: 02/29/2016
+ * Assignment: "Database UI Interactions " - Assigned Week 9
+ * 
+**************************************************************************************/
+
+/* Format the width of the form field entries */
+#insert-name {
+    width: 15em;
+}
+
+#insert-reps,
+#insert-weight {
+    width: 6em;
+}
+
+#insert-date {
+    width: 13em;
+}

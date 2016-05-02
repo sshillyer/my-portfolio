@@ -1,0 +1,138 @@
+<h2 class="page-header">Using Constructors</h2>
+<p>We are going to put away our shape code example in favor of something more interesting - Creatures! We'll make a class of Creatures which we will later try use in an inheritance structure, fleshing it out with private data members.</p> 
+
+<p>First things first: let's make a constructor. A constructor in JS is just any function that we call with new to get an object back as an implicit return value. The function <em>becomes</em> a constructor because we call the function with the <code>new</code> keyword. The object returned has everything bound in its lexical scope bound to it. These properties become public because we can then access them using dot notation. We'll see later how we can use local variable scope and closures to wrap those properties into our objects as truly private.</p>
+
+<h4><a href="examples/example7.js">Example 7 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums pre-scrollable">function Creature(name, strength, health) {   //  Note capital letter - convention for a constructor method
+  this.name = name || "Unnamed";
+  this.strength = strength || 10;
+  this.hitpoints = health || 100;
+
+  this.printInfo = function() {
+    console.log("Name: " + this.name + "\n"
+               +"Strength: " + this.strength + "\n"
+               +"Hitpoints: " + this.hitpoints);
+  } 
+}
+
+var goblin1 = new Creature;   // if not passing arguments, () not needed
+var goblin2 = new Creature(); // same as agove
+var goblin3 = new Creature("Dobby", 15);
+goblin1.printInfo(); 
+goblin3.printInfo();
+// Name: Unnamed
+// Strength: 10
+// Hitpoints: 100
+// Name: Dobby
+// Strength: 15
+// Hitpoints: 100</pre>
+
+<p>On line 1, we've denoted to other users that this function should be treated as a constructor. There is a pattern in JavaScript that can be used to enforce that a call to Creature returns an object which we will touch on later. For now, notice that this function does not look any different from any other function you've written. It also does not explicitly return the object, although you can do so. As we'll see later, returning a specific object from a function can be used for encapsulation purposes.</p>
+<p>In other high-level object-oriented languages, we often have what are termed "default constructors" that are called when no arguments are passed to the constructor. JavaScript, until recently, did not support default values for parameters, so I'm illustrating how we can set default values using the <code>||</code> operator.</p>
+<p>Also, recall that JavaScript lets us call functions with as many or as few arguments as we would like. Extraneous ones are ignored; missing ones we must handle ourselves. In this case, if the arguments are not passed in, we simply assign default values instead. The statement on line 3, for example, will see that <code>strength</code> is undefined and evaluate to false. Then 10 is evaluated. The return value of a conditional 'or' statement is the first of the two values to return true (in this case).</p>
+
+<p>This allows us to provide an interface that sets default values for multiple parameters. However, we must realize that, just like in other languages, if we pass in any arguments, they will be assigned in the order they appear in our function signature, so only the trailing arguments will pick up default values. We cannot, for example, only pass in the health and expect the name and strength to be assigned the defaults. Instead, name would end up having some value - likely an integer - and strength and hitpoints would be assigned their defaults.</p>
+
+<p>As mentioned before, it's important to note that the new operator causes an implied object to be returned. The contextual <em>this</em> object is being appended with a variety of properties, and these are associated with the object that is returned. We will see later that, through closure, we can hide data members and even create private methods.</p>
+
+
+<h2>Attributes and Constructors</h2>
+<p>But what about the property attributes we discussed on the previous page - how do they relate? We can use the same style of code we used to define a property, instead passing in <em>this</em> as the object argument to <code>defineProperty()</code> method. We finally have some fine-tuned control over the properties we're giving to our class-like objects.</p>
+
+<p>In this next snippet, note that we set the attributes for each property in each call: get, set, enumerable and configurable properties are all explicitly set using object literal syntax.<p>
+
+<h4><a href="examples/example8.js">Example 8 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums pre-scrollable">"use strict";
+
+function Creature(name, strength, hitpoints) {   //  Note capital letter - convention for a constructor method
+  // Define "name" property and give it a default value
+  Object.defineProperty(this, "name", {
+    get: function() {
+      return name;
+    },
+    set: function(newName) {
+      console.log("Setting name to " + newName);
+      name = newName;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  
+  this.name = name || "Unnamed";  // does this work still??
+
+  // Repeat for strength
+  Object.defineProperty(this, "strength", {
+    get: function() {
+      return strength;
+    },
+    set: function(newStrength) {
+      console.log("Setting strength to " + newStrength);
+      strength = newStrength;
+    },
+    enumerable: true,
+    configurable: true
+  });
+    
+  this.strength = strength || 10; // does this work still??
+
+  Object.defineProperty(this, "hitpoints", {
+    get: function() {
+      return hitpoints;
+    },
+    set: function(newHitpoints) {
+      console.log("Setting hitpoints to " + newHitpoints);
+      hitpoints = newHitpoints;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  
+  this.hitpoints = hitpoints || 100;
+ 
+  // Hmm... every time we call new Creature(), another instance of this function is created
+  this.printInfo = function() {
+    console.log("Name: " + this.name + "\n"
+               +"Strength: " + this.strength + "\n"
+               +"Hitpoints: " + this.hitpoints);
+  } 
+}
+
+var goblin1 = new Creature;
+var goblin2 = new Creature("Scribblez", 10, 40); 
+var goblin3 = new Creature("Dobby", 15); 
+goblin3.printInfo();
+
+//Setting name to Unnamed
+//Setting Strength to 10
+//Setting name to Unnamed
+//Setting Strength to 10
+//Setting name to Dobby
+//Setting strength to 15
+//Name: Dobby
+//Strength: 15
+//Hitpoints: undefined</pre>
+
+<p>Each goblin we instantiate gets its own local property defined. This syntax, so far, has mostly allowed us to set up the attributes we discussed in the context of a constructor.</p>
+
+<h3>Some Concerns</h3>
+<p>So nothing particularly crazy here, but there are some concerns we should address before proceeding. Every time you call <code>new Creature</code>, another copy of the function printInfo is created and defined. This will be the case for any object where we define a function as a property and have it returned like so. </p>
+<p>The solution is to put our methods as a member of the object's <em>prototype</em>. Backing up on the complexity a bit to simplify the example, we could do this: </p>
+
+<h4><a href="examples/example9.js">Example 9 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums">
+function Creature(name) {
+  this.name = name || "Unnamed";
+}
+
+Creature.prototype.printInfo = function() {
+  console.log("Name: " + this.name);
+}
+
+var goblin = new Creature("Dobby");
+goblin.printInfo(); // -->  Name: Dobby</pre>
+
+<p>This is not terribly important right-off, but it does mean we have only one version of printInfo(), and it is now stored on the prototype. If we want to modify the behavior of a function for all objects with the same prototype, then we can go to one place to do so. Also, if we had thousands of complex objects with many functions, we are saving resources by not having a copy of the function stored "on" every instance of the class-like objects we're creating. In fact, prototypes are very important to what we are going to do in the rest of this guide.</p>
+
+
+<p>Continue reading to see how we pull this together into a cohesive Creature class.</p>

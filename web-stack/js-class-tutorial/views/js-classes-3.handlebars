@@ -1,0 +1,139 @@
+<h2 class="page-header">Attributes: Building Towards Class-like Behavior</h2>
+<p>Attributes, to define them recursively, are attributes that describe a property's ability to be written, discovered, configured, etc. Let's demonstrate how to emulate a behavior we sometimes see with classes in other languages - a constant data member. In JavaScript, the distinction is made between writable and non-writable properties. To achieve this, we can ues the defineProperty() method of the JavaScript Object.</p>
+
+<h4><a href="examples/example3.js">Example 3 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums">// If we use strict, assigning to square.color after making writable 
+// false throw an error instead of failing silently
+// "use strict";   // remove the comment here to try that out
+
+var square = {
+    color: "pink",
+};
+console.log(square.color); // pink
+square.color = "red";
+
+Object.defineProperty(square, "color", {
+  writable: false
+});
+
+console.log(square.color); // red
+square.color = "green";
+console.log(square.color); // red</pre>
+
+<p>The first argument is the object we are defining a property on - in this case, square. The second argument is the property we are defining. The third property is an object-literal which lists the various attributes we are defining. In the above code example, we define the property color to be non-writable. Color already exists, so it simply updates the existing property's attribute.</p>
+
+<p>The other attributes we can define for a property using <code>Object.defineProperty()</code> include:</p>
+
+<p><dl class="list-group">
+<dt class="list-group-item">Enumerable</dt>
+<dd class="list-group-item">Data and Accessor attribute: true or false. Enumerable sets whether or not you can iterate over the properties in a for-in loop. A loop that starts with <code class="prettyprint">for (property in object) {</code> would only work on property members with this attribute set to true.</dd>
+
+<dt class="list-group-item">Configurable</dt>
+<dd class="list-group-item">Data and Accessor attribute: true or false. Set to false to prevent future configurations to the property. Locks down the property from being deleted as well.</dd>
+
+<dt class="list-group-item">Value</dt>
+<dd class="list-group-item">Data attribute: any value you'd normally define using a 'var =' type statement. This is just the value stored in the property when you assign a value.</dd>
+
+<dt class="list-group-item">Writable</dt>
+<dd class="list-group-item">Data attribute: determines if you can write to the property. JavaScript's version of "const" (C++) / "final" (Java), setting this to false will cause the property's value to be immutable unless Writable is later set to false.</dd>
+
+<dt class="list-group-item">Get</dt>
+<dd class="list-group-item">Accessor attribute: function. If you define a get someProperty() function, you can define some custom logic to return a specific value.</dd>
+
+<dt class="list-group-item">Set</dt>
+<dd class="list-group-item">Accessor attribute: function. This is called when assignments occur.</dd>
+
+</dl></p>
+
+<h2>Using Attributes</h2>
+<p>Let's dive a little deeper into each of these attributes and discuss how their settings can impact what we can do with an object's properties.</p>
+
+<h3>Enumerable</h4>
+<p>You can get all of an Objects enumerable properties' keys by calling Object.keys() on the object and storing it in a variable:</p>
+<pre class="prettyprint">var properties = Object.keys(object);</pre>
+
+<p>So if you wanted to "hide" the key for some design related decision, this is the attribute you'd want to set to false. Doing so hides the properties from loops like <code>for (keys in myObject) { // do work }</code></p>
+
+<h3>Configurable</h3>
+<p>Normally (by default) you can delete a property on an object at your leisure by calling <code class="prettyprint">delete obj.propName;</code>. To disable such behavior, just set configurable to false for that property:
+
+<h4><a href="examples/example4.js">Example 4 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums">var shape = {
+    color: "red"
+}
+console.log(shape.hasOwnProperty("color")); // true
+
+Object.defineProperty(shape, "color", {
+    configurable: false
+});
+
+delete shape.color; // Throws an error
+
+// Throws an error. Cannot turn configurable back on - locks down all attributes
+Object.defineProperty(shape, "color", {
+    configurable: true 
+});</pre>
+
+<p>So if you wanted to ensure an object's property cannot be overriden, deleted, or otherwise have its attributes modified - including the Writable attirbute itself - then this is the attribute to work with. The above code will only run if you comment out the statements after the configurabe: false is set, or if you change that value to true.</p>
+
+<h3>Value and Writable</h3>
+<p>The best way to understand these attributes is by a simple example. If we define a property like <code>color</code> on a shape using <code class="prettyprint">var shape = { color: "red" };</code> , then this is effectively identical to the first Object.defineProperty in Example 5.</p>
+
+<p>Example 5 also has a few other snippets showing how writable and value work, as well as a demonstration of the enumerable property in action.</p>
+
+<h4><a href="examples/example5.js">Example 5 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums">var shape = {};
+
+Object.defineProperty(shape, "color", {
+  value: "red",
+  enumerable: true,    // default: true
+  configurable: true,  // default: true
+  writable: true       // default: true
+});
+
+Object.defineProperty(shape, "sides", {
+  value: 4,
+  enumerable: true,    // default: true
+  configurable: true,  // default: true
+  writable: false       // default: true
+});
+
+Object.defineProperty(shape, "hiddenKey", {
+  value: "You will not see this property in .keys()",
+  enumerable: false,    // default: true
+  configurable: true,  // default: true
+  writable: false       // default: true
+});
+
+console.log(Object.keys(shape));  // No hiddenKey property!
+console.log(shape.color + " shape has " + shape.sides + " sides.");
+// Attempt to update color and shape
+shape.color = "blue";
+shape.sides = 20;
+console.log(shape.color + " shape has changed color, but still has " + shape.sides + " sides.");</pre>
+
+<h3>Get and Set</h3>
+<p>This is the notation that we already saw on the previous page. One reason you'd modify this is if you already defined an object using object literal notation but need to define the property for the object later. Borrowing an example from page 43 of <cite>The Principles of Object-Oriented JavaScript"</cite>:
+
+<h4><a href="examples/example6.js">Example 6 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums">var person1 = {
+  _name: "Nicholas"
+};
+
+// This is one use-case for defineProperty -- we'll see more later
+Object.defineProperty(person1, "name", {
+  get: function() {
+    console.log("Reading name");
+    return this._name;
+  },
+  set: function(value) {
+    console.log("Setting name to %s", value);
+    this._name = value;
+  },
+  enumerable: true,
+  configurable: true
+});</pre>
+
+<p>Another use-case, of course, is to have the setting or getting of a property value to trigger some kind of side-effect. Perhaps its data validation, converting values, logging to the console, or logging to the console or to file. This type of language is used a lot in EC6's new class syntax.</p>
+
+<p>Continue to the next page to see how we can start putting this all together using constructors instead of object literals.</p>

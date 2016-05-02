@@ -1,0 +1,79 @@
+
+<h2 class="page-header">Prototypes</h2>
+<p>Putting this another way, instead of giving every instance of the Creature "class" their own complete copy of the function, we're actually giving the function to their prototype. You can think of the Prototype as a superclass in other languages like Java and C++. When we apply prototypal inheritance later on, this is what is happening.</p>
+
+<p>Conceptually, when you call goblin.printInfo(), JavaScript first checks if goblin has the property printInfo()</code> - whether it is a data member or a function. (Side note: we can manually check this with goblin.hasOwnProperty("printInfo")</code>. Doing so here would return false.) Finding none, it goes <em>up the prototype chain</em> and checks Creature.prototype for a printInfo property and finds one - the one we just defined!</p>
+
+<p>This is great news. Now  we have just one copy of the function for all objects! Also, if we make a change to that function on the prototype, it will effect every other object with that prototype. Hopefully you'll recall that every object, by default, has a prototype chain that goes up to the Object.prototype. Another piece of great news: we can tell an object (and functions - including constructors - are objects) where its prototype pointer variable is pointing. I smell inheritance!</p>
+    
+<p><span class="bg-danger">A final warning before we continue</span>: Do not store <em>data</em> members on an object's prototype unless you want those data members to be a "static", class-wide data members that are updated for all instances of that class each time they are changed by a method on any of the objects!</p>
+
+
+<h3>Multiple Methods, one .prototype</h3>
+
+<p>We just discussed a little bit about why using an object's prototype to store functions is a good thing. How do we make this as painless as possible from a coding and readability perspective, and how do we understand the Prototype chain? Let's explore some more examples to find out.</p>
+
+<h4>Object-Literal Notation for Prototype Properties</h4>
+
+<p>You can save a lot of typing and make your classes more readable by following this pattern below, which I describe afterwards in more detail. Note that I've cut back on some of our Creature functionality to illustrate the pattern and added some new methods.</p>
+
+<h4><a href="examples/example10.js">Example 10 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint linenums">
+function Creature(name, strength) {
+  this.name = name || "Unnamed";
+  this.strength = 100 || strength;
+}
+
+// Note: We're using object literal notation to define multiple prototype methods
+Creature.prototype = {
+  constructor: Creature,    // Without this, constructor would be set to Object instead of Creature
+
+  battleCry: function() {
+    console.log(this.name + " will crush you!");
+  },
+
+  printInfo: function() {
+    console.log("Name: " + this.name +", Strength: " + this.strength);
+  },
+
+  levelUp: function() {
+    this.strength += 10;
+  }
+};
+
+var ogre = new Creature("Shrek", 110);
+ogre.battleCry();  // "Shrek will crush you!"
+ogre.printInfo(); // "Name: Shrek, Strength: 150"
+ogre.levelUp();
+ogre.printInfo(); // "Name: Shrek, Strength: 160"
+</pre>
+
+<p>As you see, we've cut back on the need to type <code class="prettyprint">Creature.prototype.propertyName =</code> over and over again. We've made things a little bit cleaner and we've introduced the .constructor property as well. What's that all about?</p>
+
+<p>There's a problem, which we overcome by setting <code class="prettyprint">constructor: Creature</code>, that occurs when we use object literal notation. Each of the methods we add are constructed by Object rather than by Creature because they are <em>nested inside of an Object literal!</em> So we need to tell the <code class="prettyprint">Creature.prototype</code> that its constructor should point to Creature. In so doing, we are able to do this:</p>
+
+<pre class="prettyprint">
+console.log(ogre.constructor === Creature); // true.. good!
+</pre>
+
+<p>But if we omitted the <code class="prettyprint">constructor: Creature</code> property modification in our object-literal, this would return false. A minor detail, but you should pay it heed and always correct it if you use this style.</p>
+
+<h2>The Chain Behind the Curtain</h2>
+<p>You may not be super-comfortable with this concept of prototypes. If not, I suggest doing some research online or consulting a text on JavaScript to get the fully story. But it's not too bad to think about abstractly. Succinctly, each instance of Creature has an implicit property called [[Prototype]] that is a pointer to Creature.prototype. Creature.prototype.constructor in term points to the function that constructs creatures... in this case, Creature, our constructor property we set. Interestingly, this is a circular reference. Creature has its own prototype property that in turn points to Creature.prototype.<p>
+
+<p>The key implication of this is that you can, at any time, add new properties to the Creature.prototype at any time and <em>all instances</em> of Creature will then have access to the new property. We're typically using this to add methods, of course. So we could easily just add a new method later on (after instantiation) like this: </p>
+
+<h4><a href="examples/example11.js">Example 11 <span class="glyphicon glyphicon-file"></span></a></h4>
+<pre class="prettyprint">
+Creature.prototype.rest = function() {
+  console.log(this.name + " sits down and rests a while.");
+}
+
+ogre.rest(); // "Shrek sits down and rests a while."
+</pre>
+<p>This is, of course, in addition to the ability to tell a constructor function who its prototype should be, allowed us to explicitly create chains that resemble classical inheritance patterns.</p>
+
+<h3>Prototypal Inheritance / Polymorphism</h3>
+<p>Going back to our example, when we call .rest() on the ogre, the JavaScript engine will check the ogre object for the <code class="prettyprint">rest</code> property and, not finding it, refer to its prototype, <code class="prettyprint">Creature.prototype</code>, where it eventually finds the property. The use cases for this behavior are not explicitly obvious - one reason you might do this is if you are distributing some kind of library that exports an object and the user wants to extend your library without modifying the original source. They might import the module and then extend its prototype with additional methods so that they can act on your module without having to do true inheritance.<p>
+
+<p>But the real magic here is that we are able to achieve inheritance and attempt to achieve polymorphic behavior. Let's examine this behavior in more depth next.</p>
